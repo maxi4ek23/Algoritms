@@ -1,90 +1,94 @@
-import sys
 
-class Node:
-    def __init__(self, key):
-        self.key = key
-        self.right = None
-        self.left = None
-        self.height = 1
+def get_info_from_file():
+    file = open('input.txt')
+    line = file.read()
+    print(line)
+    workers = line.split('\n')[0].split(' ')[0]
+    print('Number of workers:', workers)
+    beers = line.split('\n')[0].split(' ')[1]
+    print('Number of types of beer:', beers)
+    answers = line.split('\n')[1].split(' ')
+    print('Answers to question "Do u like this types of beer?" Y-Yes or N-No?', answers)
+    return workers, beers, answers
 
-class AvlTree:
-    def getHeight(self, root):
-        if not root:
-            return 0
+
+def get_one_love_beer(result_of_function, array_of_answers) -> list:
+    for all_worker_answers in array_of_answers:
+        counter = 0
+        for answer in all_worker_answers:
+            if answer == 'Y':
+                counter += 1
+        if counter == 1:
+            index_of_current_worker_answers = array_of_answers.index(all_worker_answers)
+            print(array_of_answers[index_of_current_worker_answers].index("Y") + 1)
+            result_of_function.append(array_of_answers[index_of_current_worker_answers].index('Y') + 1)
+            print(result_of_function)
+    return result_of_function
+
+
+def find_all_favourite_beers(answers, workers, beers):
+    first_format_data = []
+    second_format_data = []
+    for i in range(int(workers)):
+        helper_array = []
+        for j in range(int(beers)):
+            if answers[i][j] == "Y":
+                helper_array.append((j + 1))
+                second_format_data.append(j + 1)
+        first_format_data.append(helper_array.copy())
+        helper_array.clear()
+    print('First format:', first_format_data)
+    print('Second format:', second_format_data)
+    return first_format_data, second_format_data
+
+
+def find_if_arrays_have_same_values(list1, list2):
+    result = False
+    for x in list1:
+        for y in list2:
+            if x == y:
+                result = True
+                return result
+    return result
+
+
+# Create new array which include values from first array and get them from second array
+def create_union_array(arr1, arr2):
+    arr3 = []
+    for k in arr2:
+        if k in arr1:
+            arr3.append(k)
+    print(arr3)
+    return arr3
+
+
+def create_eventual_list_of_beers(result_of_function, first_format_data, second_format_data):
+    for x in first_format_data:
+        if find_if_arrays_have_same_values(result_of_function, x):
+            continue
         else:
-            return root.height
+            union_array = create_union_array(x, second_format_data)
+            res = max(set(union_array), key=union_array.count)
+            result_of_function.append(res)
+    return result_of_function
 
-    def insert_node(self, root, key):
 
-        if not root:
-            return Node(key)
-        elif key < root.key:
-            root.left = self.insert_node(root.left, key)
-        else:
-            root.right = self.insert_node(root.right, key)
+def get_optimal_amount_of_beers(result_of_function):
+    print(len(result_of_function))
+    f = open('output.txt', 'x')
+    f.write(str(len(result_of_function)))
 
-        root.height = 1 + max(self.getHeight(root.left),
-                              self.getHeight(root.right))
 
-        balanceFactor = self.getBalance(root)
-        if balanceFactor > 1:
-            if key < root.left.key:
-                return self.rightRotate(root)
-            else:
-                root.left = self.leftRotate(root.left)
-                return self.rightRotate(root)
+if __name__ == '__main__':
+    results = []
 
-        if balanceFactor < -1:
-            if key > root.right.key:
-                return self.leftRotate(root)
-            else:
-                root.right = self.rightRotate(root.right)
-                return self.leftRotate(root)
+    number_of_workers, number_of_beers, yes_no_elements = get_info_from_file()
 
-        return root
+    get_one_love_beer(results, yes_no_elements)
 
-    def getBalance(self, root):
-        if not root:
-            return 0
-        else:
-            return self.getHeight(root.left) - self.getHeight(root.right)
+    array_of_lovely_beers, lovely_beers_according_to_workers = \
+        find_all_favourite_beers(yes_no_elements, number_of_workers, number_of_beers)
 
-    def leftRotate(self, z):
-        y = z.right
-        T2 = y.left
-        y.left = z
-        z.right = T2
-        z.height = 1 + max(self.getHeight(z.left),
-                           self.getHeight(z.right))
-        y.height = 1 + max(self.getHeight(y.left),
-                           self.getHeight(y.right))
-        return y
+    create_eventual_list_of_beers(results, array_of_lovely_beers, lovely_beers_according_to_workers)
 
-    def rightRotate(self, z):
-        y = z.left
-        T3 = y.right
-        y.right = z
-        z.left = T3
-        z.height = 1 + max(self.getHeight(z.left),
-                           self.getHeight(z.right))
-        y.height = 1 + max(self.getHeight(y.left),
-                           self.getHeight(y.right))
-        return y
-
-    def preOrder(self, root):
-        if not root:
-            return
-        print("{0} ".format(root.key), end="")
-        self.preOrder(root.left)
-        self.preOrder(root.right)
-
-myTree = AvlTree()
-root = None
-root = myTree.insert_node(root, 10)
-root = myTree.insert_node(root, 20)
-root = myTree.insert_node(root, 30)
-root = myTree.insert_node(root, 40)
-root = myTree.insert_node(root, 50)
-root = myTree.insert_node(root, 25)
-print(myTree.getHeight(root))
-myTree.preOrder(root)
+    get_optimal_amount_of_beers(results)
