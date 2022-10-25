@@ -1,94 +1,85 @@
 
-def get_info_from_file():
-    file = open('input.txt')
-    line = file.read()
-    print(line)
-    workers = line.split('\n')[0].split(' ')[0]
-    print('Number of workers:', workers)
-    beers = line.split('\n')[0].split(' ')[1]
-    print('Number of types of beer:', beers)
-    answers = line.split('\n')[1].split(' ')
-    print('Answers to question "Do u like this types of beer?" Y-Yes or N-No?', answers)
-    return workers, beers, answers
+from collections import defaultdict
 
 
-def get_one_love_beer(result_of_function, array_of_answers) -> list:
-    for all_worker_answers in array_of_answers:
-        counter = 0
-        for answer in all_worker_answers:
-            if answer == 'Y':
-                counter += 1
-        if counter == 1:
-            index_of_current_worker_answers = array_of_answers.index(all_worker_answers)
-            print(array_of_answers[index_of_current_worker_answers].index("Y") + 1)
-            result_of_function.append(array_of_answers[index_of_current_worker_answers].index('Y') + 1)
-            print(result_of_function)
-    return result_of_function
+def read_file():
+    file = open('input1.txt')
+    lines = file.read()
+    count_line = len(lines.split('\n'))
+    string_arrays = []
+    for i in range(count_line):
+        string_arrays.append(lines.split('\n')[i].split(' '))
+    print(string_arrays)
+    vertices_array = []
+
+    for i in range(count_line):
+        for j in range(2):
+            vertices_array.append(string_arrays[i][j])
+
+    vertices_array = list(dict.fromkeys(vertices_array))
+    print(vertices_array)
+    vertice_number = len(vertices_array)
+    print(vertice_number)
+    number_arrays = []
+
+    for string_array in string_arrays:
+        help_array = []
+        for string_value in string_array:
+            integer_value = int(string_value)
+            help_array.append(integer_value)
+        number_arrays.append(help_array)
+
+    print(number_arrays)
+
+    return vertice_number, number_arrays
 
 
-def find_all_favourite_beers(answers, workers, beers):
-    first_format_data = []
-    second_format_data = []
-    for i in range(int(workers)):
-        helper_array = []
-        for j in range(int(beers)):
-            if answers[i][j] == "Y":
-                helper_array.append((j + 1))
-                second_format_data.append(j + 1)
-        first_format_data.append(helper_array.copy())
-        helper_array.clear()
-    print('First format:', first_format_data)
-    print('Second format:', second_format_data)
-    return first_format_data, second_format_data
+def output_cycle(boolean):
+    print(boolean)
+    # f = open('output.txt', 'x')
+    # f.write(str(boolean))
 
 
-def find_if_arrays_have_same_values(list1, list2):
-    result = False
-    for x in list1:
-        for y in list2:
-            if x == y:
-                result = True
-                return result
-    return result
+class Graph:
+
+    def __init__(self, num_vertices):
+
+        self.V = num_vertices
+
+        self.graph = defaultdict(list)
+
+    def add_edge(self, array):
+
+        self.graph[array[0]].append(array[1])
+
+        self.graph[array[1]].append(array[0])
+
+    def recursive_cycle(self, v, visited, parent):
+        visited[v] = True
+        print(self.graph[v])
+        for i in self.graph[v]:
+            if not visited[i]:
+                if self.recursive_cycle(i, visited, v):
+                    return True
+            elif parent != i:
+                return True
+        return False
+
+    def has_cycle(self):
+        visited = [False] * self.V
+        for i in range(self.V):
+            if not visited[i]:
+                if self.recursive_cycle(i, visited, -1):
+                    return True
+        return False
 
 
-# Create new array which include values from first array and get them from second array
-def create_union_array(arr1, arr2):
-    arr3 = []
-    for k in arr2:
-        if k in arr1:
-            arr3.append(k)
-    print(arr3)
-    return arr3
-
-
-def create_eventual_list_of_beers(result_of_function, first_format_data, second_format_data):
-    for x in first_format_data:
-        if find_if_arrays_have_same_values(result_of_function, x):
-            continue
-        else:
-            union_array = create_union_array(x, second_format_data)
-            res = max(set(union_array), key=union_array.count)
-            result_of_function.append(res)
-    return result_of_function
-
-
-def get_optimal_amount_of_beers(result_of_function):
-    print(len(result_of_function))
-    f = open('output.txt', 'x')
-    f.write(str(len(result_of_function)))
-
-
-if __name__ == '__main__':
-    results = []
-
-    number_of_workers, number_of_beers, yes_no_elements = get_info_from_file()
-
-    get_one_love_beer(results, yes_no_elements)
-
-    array_of_lovely_beers, lovely_beers_according_to_workers = \
-        find_all_favourite_beers(yes_no_elements, number_of_workers, number_of_beers)
-
-    create_eventual_list_of_beers(results, array_of_lovely_beers, lovely_beers_according_to_workers)
-
-    get_optimal_amount_of_beers(results)
+vertices, adj_list = read_file()
+g = Graph(vertices)
+for edge in adj_list:
+    g.add_edge(edge)
+if g.has_cycle():
+    print("Graph contains cycle")
+else:
+    print("Graph doesn't contain cycle ")
+output_cycle(g.has_cycle())
