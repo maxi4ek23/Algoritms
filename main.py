@@ -31,7 +31,7 @@ def find_unique_values(array):
     return unique_values
 
 
-def dist_for_element(matrix, width, unique_values):
+def find_result(matrix, width, unique_values):
     current_route = defaultdict(list)
     previous_route = defaultdict(list)
 
