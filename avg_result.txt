@@ -1,0 +1,10 @@
+Pattern matched at index 0 to 5
+Pattern matched at index 16 to 21
+Pattern matched at index 32 to 37
+Pattern matched at index 47 to 52
+Pattern matched at index 73 to 78
+Pattern matched at index 108 to 113
+Pattern matched at index 123 to 128
+Pattern matched at index 143 to 148
+Pattern matched at index 155 to 160
+Pattern matched at index 166 to 171
